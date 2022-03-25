@@ -1,5 +1,7 @@
 package com.example.model;
 
+import org.apache.log4j.Logger;
+
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.io.File;
@@ -14,6 +16,7 @@ public class SendMail {
     private Session session;
 
     public static int sendMail(File file, String user, String pass) {
+        Logger logJava = Logger.getLogger(SendMail.class);
         username = user;
         password = pass;
         SendMail sendMail = new SendMail();
@@ -22,9 +25,11 @@ public class SendMail {
         try {
             sendMail.createMimeMessage(file);
         } catch (MessagingException e) {
+            logJava.error("Email couldn't be send");
             return -1;
 //            e.printStackTrace();
         } catch (IOException e) {
+            logJava.error("Email error");
             return -2;
 //            e.printStackTrace();
         }

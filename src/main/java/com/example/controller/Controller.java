@@ -8,10 +8,14 @@ import com.example.model.factory.Product;
 import com.example.view.UserInterface;
 import com.example.model.database.Inventory;
 import com.example.view.CheckValid;
+import org.apache.log4j.Logger;
 
 import java.util.Map;
 
+
 public class Controller implements Mediator{
+    Logger logJava = Logger.getLogger(Controller.class);
+
     UserInterface userInterface;
     InventoryInt inventory;
     FactoryController factoryController;
@@ -45,28 +49,35 @@ public class Controller implements Mediator{
                 if (id == 0) {return;}
                 Product product = factoryController.startFactory(id);
                 inventory.addProduct(product, userInterface.enterQuantity());
+                logJava.info("User select to add a product");
                 break;
             case "2":
                 userInterface.displayProduct(Formatter.formatInventory((Inventory) inventory));
+                logJava.info("Product select to show products");
                 break;
             case "3":
                 if (handleValidateID(true) == 0) {return;}
                 userInterface.displayProduct(Formatter.formatProduct(inventory.getProduct(productID)));
                 userInterface.selectProduct();
+                logJava.info("User select a product");
                 break;
             case "4":
                 String filename = userInterface.generateReport();
                 String content = Formatter.formatInventory((Inventory) inventory);
                 CreateReport.createReport(filename, content);
+                logJava.info("User select generate report");
                 break;
             case "5":
+                logJava.info("User select Email Report");
                 String[] data = userInterface.generateEmail().split(" ");
                 int sent = SendMail.sendMail(CreateReport.createReport("report.pdf", Formatter.formatInventory((Inventory) inventory)), data[0], data[1]);
                 if (sent == -1) {
                     System.out.println("Email couldn't be sent. Please check username and password.");
+                    logJava.warn("Email couldn't be sent");
                 }
                 if (sent == -2) {
                     System.out.println("Email couldn't be sent");
+                    logJava.error("Email Error");
                 }
                 break;
             default:
@@ -82,14 +93,17 @@ public class Controller implements Mediator{
                 inventory.setProductStock(productID, quantity);
                 userInterface.successful();
                 userInterface.selectProduct();
+                logJava.info("Product Select");
                 break;
             case "2":
                 factoryController.modifyProduct(inventory.getProduct(productID));
+                logJava.info("Product Modify");
                 break;
             case "3":
                 if (userInterface.confirm()) {
                     inventory.removeProduct(productID);
                     userInterface.successful();
+                    logJava.info("Product remove");
                     return;
                 }
                 break;
